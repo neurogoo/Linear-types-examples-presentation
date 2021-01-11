@@ -1,0 +1,5 @@
+what to mention 
+- ghc 9.0 getting linear types
+- idris 2 getting linear types
+- Rust having affine types
+* Links
