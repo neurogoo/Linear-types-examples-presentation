@@ -18,12 +18,39 @@ passwordStrengthChecker : (password : String) -> Dec (goodPassword password)
 passwordStrengthChecker password = isLTE 12 (length password)
 
 createNewUser : (loginName : String) -> (password : String) -> Either String Login
-createNewUser loginName password = case passwordStrengthChecker password of
-  Yes prf => Right $ MkLogin loginName (password ** prf)
-  No _  => Left "Password was not long enough"
+createNewUser loginName password =
+  case passwordStrengthChecker password of
+    Yes prf => Right $ MkLogin loginName (password ** prf)
+    No _    => Left "Too short password"
 
-testNewUserCreation : Either String Login
-testNewUserCreation = createNewUser "hee" "jeedfjaisfasdjopfjaspfs"
+--testNewUserCreation : Either String Login
+--testNewUserCreation = createNewUser "hee" "jeedfjaisfasdjopfjaspfs"
+
+-- dup : (1 _ : Int) -> (Int,Int)
+-- dup x = (x,x)
+
+-- greetAudience : (1 _ : String) -> String
+-- greetAudience city = "Hello Sydney"
+
+-- lprint : (1 _ : List Char) -> IO ()
+-- lprint [] = pure ()
+-- lprint (s :: ss) = do
+--   print s
+--   lprint ss
+
+-- linearPrint : (1 _ : String) -> IO ()
+-- linearPrint s = ?heh
+
+read : (1 _ : String) -> LPair String String
+read filename = "joo" # filename
+
+closeFile : (1 _ : String) -> Bool
+
+readFile : (1 _ : String) -> String
+readFile filename =
+  let (content # filehandler) = read filename
+      hah = closeFile filehandler
+  in if hah then content else content
 
 data Token = MkToken
 

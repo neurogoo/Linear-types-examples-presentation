@@ -1,5 +1,83 @@
+---
+patat:
+    slideLevel: 2
+    images:
+        backend: iterm2
+...
+#+Title: Examples of linear types
+#+Author: Toni Okuogume
+#+OPTIONS: num:nil toc:nil
+#+REVEAL_PLUGINS: (highlight)
+* What I am going talk about
+:PROPERTIES:
+:COMMENT: Remember to tell what you would like people getting out of this talk
+:END:
+- Motivation
+- Quick intro for Idris
+- Demo time? 
+- Conclusion
+* Motivation for linear types
+  - Safely using mutable data structures
+  - Better control for performance
+  - Enforce data flows
+* Quick intro for Idris
+#+begin_src idris
+  goodPassword : String -> Type
+  goodPassword s = length s `GTE` 12
+
+  record Login where
+    constructor MkLogin
+    loginName : String
+    password : (s : String ** goodPassword s)
+
+  passwordStrengthChecker : (password : String) -> Dec (goodPassword password)
+  passwordStrengthChecker password = isLTE 12 (length password)
+
+  createNewUser : (loginName : String) -> (password : String) -> Either String Login
+  createNewUser loginName password = case passwordStrengthChecker password of
+    Yes prf => Right $ MkLogin loginName (password ** prf)
+    No _  => Left "Password was not long enough"
+#+end_src
+* Linear types
+** What means "using"
+   - Data type or primitive value -> Pattern matched against
+   - Function -> function applied
+** Basic example
+   #+begin_src idris
+     dup : (1 _ : Int) -> (Int,Int)
+     dup x = (x,x)
+   #+end_src
+   #+begin_example
+     While processing right hand side of dup at Linear.idr:30:1--32:1:
+          There are 2 uses of linear name x at:
+          dup x = (x,x)
+   #+end_example
+** Basic example2
+   #+begin_src idris
+     greetAudience : (1 _ : String) -> String
+     greetAudience city = "Hello Sydney"
+   #+end_src
+   #+begin_example
+          While processing right hand side of greetAudience at Linear.idr:33:1--35:1:
+          There are 0 uses of linear name city at:
+          greetAudience city = "Hello Sydney"
+   #+end_example
+* Demo time?
+* Where to try
+  - Idris 2 (still in experimental state)
+  - Haskell, upcoming major GHC 9.0
+  - ATS
+    
+  Also related
+  - Rust
+* Links
+  - Idris 2 github page with links to different talks https://github.com/idris-lang/Idris2
+  - Tweag blog for example https://www.tweag.io/blog/2020-11-11-linear-dps/
+  - A Tase of ATS talk https://www.youtube.com/watch?v=ADN6B1Wk5Ts
+* Motivation  
+- Fixing disconnect between the idea of the program with the code of the program
+- Currently used type systems don't have the ability express necessary ideas
 what to mention 
 - ghc 9.0 getting linear types
 - idris 2 getting linear types
 - Rust having affine types
-* Links
