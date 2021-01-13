@@ -3,6 +3,7 @@ module Linear
 import Data.Nat
 import Prelude
 import Data.DPair
+import Control.Linear.LIO
 
 -- small example from my previous talk 1.5 years ago
 
@@ -41,16 +42,23 @@ createNewUser loginName password =
 -- linearPrint : (1 _ : String) -> IO ()
 -- linearPrint s = ?heh
 
-read : (1 _ : String) -> LPair String String
-read filename = "joo" # filename
+data FileHandle = MkFileHandle
 
-closeFile : (1 _ : String) -> Bool
+openFile : (1 _ : String) -> IO FileHandle
 
-readFile : (1 _ : String) -> String
-readFile filename =
-  let (content # filehandler) = read filename
-      hah = closeFile filehandler
-  in if hah then content else content
+read : (1 _ : FileHandle) -> IO (LPair String FileHandle)
+
+closeFile : (1 _ : FileHandle) -> IO ()
+
+seq : (1 _ : IO ()) -> IO String -> IO String
+
+utf8Decode : String -> String
+
+readFile : (1 _ : String) -> IO String
+readFile filename = let (>>=) = bindL in do
+  file <- openFile filename
+  (content # filehandler) <- read file
+  closeFile filehandler `seq` pure (utf8Decode content)
 
 data Token = MkToken
 
@@ -75,3 +83,7 @@ test = do
   joku <- CheckAutentication MkToken
   jotain <- ReadSecret joku
   ?hah
+
+-- Local Variables:
+-- idris-load-packages: ("support" "prelude" "network" "lib" "base" "contrib")
+-- End:

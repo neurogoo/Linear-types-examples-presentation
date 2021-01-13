@@ -42,13 +42,15 @@ patat:
 ** What means "using"
    - Data type or primitive value -> Pattern matched against
    - Function -> function applied
+
+     Intuation with functions: function with linear parameter guarantees exactly one use of parameter for one call of function
 ** Basic example
    #+begin_src idris
      dup : (1 _ : Int) -> (Int,Int)
      dup x = (x,x)
    #+end_src
    #+begin_example
-     While processing right hand side of dup at Linear.idr:30:1--32:1:
+     While processing right hand side of dup at Linear.idr:
           There are 2 uses of linear name x at:
           dup x = (x,x)
    #+end_example
@@ -58,10 +60,29 @@ patat:
      greetAudience city = "Hello Sydney"
    #+end_src
    #+begin_example
-          While processing right hand side of greetAudience at Linear.idr:33:1--35:1:
-          There are 0 uses of linear name city at:
-          greetAudience city = "Hello Sydney"
+     While processing right hand side of greetAudience at Linear.idr:
+           There are 0 uses of linear name city at:
+           greetAudience city = "Hello Sydney"
    #+end_example
+** State machine
+** Cleaning resource
+   #+begin_src idris
+     openFile : (1 _ : String) -> IO FileHandle
+
+     read : (1 _ : FileHandle) -> IO (LPair String FileHandle)
+
+     closeFile : (1 _ : FileHandle) -> IO ()
+
+     seq : (1 _ : IO ()) -> IO String -> IO String
+
+     utf8Decode : String -> String
+
+     readFile : (1 _ : String) -> IO String
+     readFile filename = let (>>=) = bindL in do
+       file <- openFile filename
+       (content # filehandler) <- read file
+       closeFile filehandler `seq` pure (utf8Decode content)
+   #+end_src
 * Demo time?
 * Where to try
   - Idris 2 (still in experimental state)
@@ -81,3 +102,7 @@ what to mention
 - ghc 9.0 getting linear types
 - idris 2 getting linear types
 - Rust having affine types
+
+#+begin_comment
+One of the big fundamental problems in coding is identifying and controlling ownership. Who owns specific piece of data, who all can access it, who is responsible for it. And ideally we want to encode this information to types so that compiler can help check that our designs work correctly. Linear types are one possible way of combating this problem where one can mark in type level specific piece of data as something that has to be used exactly once. In this presentation I will be showing few short examples how this would look in practice using Idris 2, the upcoming next major version of Idris with support for linear types.
+#+end_comment
