@@ -31,3 +31,6 @@ seq : (1 _ : IO ()) -> IO String -> IO String
 
 public export
 utf8Decode : String -> String
+
+public export
+myBind : (1 _ : IO a) -> (1 _ : ((1 _ : a) -> IO b)) -> IO b

@@ -16,7 +16,7 @@ picture url = fetchImage url $ \image =>
   in transposedImage
 
 readFile : (1 _ : String) -> IO String
-readFile filename = let (>>=) = bindL in do
+readFile filename = let (>>=) = myBind in do
   file <- openFile filename
   (content # filehandler) <- read file
   closeFile filehandler `seq` pure (utf8Decode content)
