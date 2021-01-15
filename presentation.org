@@ -17,7 +17,15 @@ patat:
 - Few examples of linear types
 - Demo time? 
 - Conclusion
-* Motivation for linear types
+* Linear types
+*** Promise
+    Resource marked as linear must be used exactly once
+*** What means to "use" variable
+   - Data type or primitive value -> Pattern matched against
+   - Function -> function applied
+
+     Intuition with functions: function with linear parameter guarantees exactly one use of parameter for one call of function
+** Motivation for linear types
   - Safely using mutable data structures
   - Enforce data flows
   - Better control for performance
@@ -50,12 +58,7 @@ patat:
     Yes prf => Right $ MkLogin loginName (password ** prf)
     No _  => Left "Password was not long enough"
 #+end_src
-* Linear types
-** What means "using"
-   - Data type or primitive value -> Pattern matched against
-   - Function -> function applied
-
-     Intuation with functions: function with linear parameter guarantees exactly one use of parameter for one call of function
+* Examples of linear types
 ** Basic example
    #+begin_src idris
      dup : (1 _ : Int) -> (Int,Int)
@@ -88,10 +91,32 @@ patat:
            transposedImage = transposeImage croppedImage
        in transposedImage
    #+end_src
+** Mutable array 1
+   Taken from paper *Linear Haskell: practical linearity in a higher-order polymorphic language*
+   #+begin_src haskell
+     array :: Int -> [(Int,a)] -> Array a
+     array size pairs = runST $ do
+         ma <- newMArray size
+         forM_ pairs (write ma)
+         unsafeFreeze ma
+   #+end_src
+** Mutable array 2
+   #+begin_src idris
+     newMArray : Int -> (1 _ : ((1 _ : MArray a) -> Ur b)) -> b
+     write : (1 _ : MArray a) -> (Int, a) -> MArray a
+     read : (1 _ : MArray a) -> Int -> (MArray a, Ur a)
+     freeze : (1 _ : MArray a) -> Ur(Array a)
+     foldl : ((1 _ : a) -> b -> a) -> (1 _ : a) -> (1 _ : List b) -> a
+
+     array : Int -> List (Int,a) -> Array a
+     array size pairs = newMArray size $ \ma =>
+       freeze (foldl write ma pairs)
+   #+end_src
 ** Cleaning resource
    #+begin_src idris
      openFile : (1 _ : String) -> IO FileHandle
 
+     -- (#) : a -> (1 _ : b) -> LPair a b
      read : (1 _ : FileHandle) -> IO (LPair String FileHandle)
 
      closeFile : (1 _ : FileHandle) -> IO ()
@@ -108,16 +133,19 @@ patat:
    #+end_src
 * Demo time?
 * Where to try
-  - Idris 2 (still in experimental state)
-  - Haskell, upcoming major GHC 9.0
+  - Idris 2 (still very much work-in-progress state)
+  - Haskell, upcoming major version GHC 9.0
   - ATS
     
   Also related
   - Rust
+  - Clean
 * Links
   - Idris 2 github page with links to different talks https://github.com/idris-lang/Idris2
-  - Tweag blog for example https://www.tweag.io/blog/2020-11-11-linear-dps/
+  - Tweag blog, for example https://www.tweag.io/blog/2020-11-11-linear-dps/
   - A Tase of ATS talk https://www.youtube.com/watch?v=ADN6B1Wk5Ts
+  - Linear Haskell: practical linearity in a higher-order polymorphic language https://arxiv.org/abs/1710.09756
+#+begin_comment
 * Motivation  
 - Fixing disconnect between the idea of the program with the code of the program
 - Currently used type systems don't have the ability express necessary ideas
@@ -125,6 +153,7 @@ what to mention
 - ghc 9.0 getting linear types
 - idris 2 getting linear types
 - Rust having affine types
+#+end_comment
 
 #+begin_comment
 One of the big fundamental problems in coding is identifying and controlling ownership. Who owns specific piece of data, who all can access it, who is responsible for it. And ideally we want to encode this information to types so that compiler can help check that our designs work correctly. Linear types are one possible way of combating this problem where one can mark in type level specific piece of data as something that has to be used exactly once. In this presentation I will be showing few short examples how this would look in practice using Idris 2, the upcoming next major version of Idris with support for linear types.

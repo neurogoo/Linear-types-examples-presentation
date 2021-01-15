@@ -1,7 +1,6 @@
 module Example
 
 import Data.Nat
-import Data.SortedSet
 
 data Image = MkImage
 
